@@ -5,10 +5,6 @@ FR/EN. Built to show the **SOLID principles** and the **Controller / Repository 
 Read [SOLID.md](SOLID.md) for the full explanation, with links to the code.
 French audit report of every SOLID decision (how, where, why): [RAPPORT_SOLID.md](RAPPORT_SOLID.md).
 
-## Group members
-
-- _First name LAST NAME_
-- _First name LAST NAME_
 
 ## Stack
 
