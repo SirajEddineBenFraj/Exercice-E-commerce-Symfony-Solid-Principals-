@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block title %}{{ product.name }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row g-4">
+        <div class="col-md-5 col-lg-4">{{ ui.card_picture(product) }}</div>
+
+        <div class="col-md-7 col-lg-8">
+            <h1>{{ product.name }}</h1>
+            <p class="fs-4"><span class="price">{{ ui.price(product.price) }}</span></p>
+            <p style="white-space: pre-line">{{ product.description }}</p>
+            <p class="text-body-secondary">{{ 'product.stock'|trans({'%count%': product.stock}) }}</p>
+
+            {# Add to cart: logged-in users only (spec); the cart is linked to the logged-in user automatically. #}
+            {% if not product.inStock %}
+                <span class="badge text-bg-secondary fs-6">{{ 'product.sold_out'|trans }}</span>
+            {% elseif is_granted('ROLE_USER') %}
+                {{ form_start(form, {attr: {class: 'row g-2 align-items-end'}}) }}
+                    <div class="col-auto">{{ form_row(form.quantity) }}</div>
+                    <div class="col-auto mb-3"><button class="btn btn-primary">{{ 'cart.add'|trans }}</button></div>
+                {{ form_end(form) }}
+            {% else %}
+                <a class="btn btn-outline-primary" href="{{ path('app_login') }}">{{ 'product.login_to_buy'|trans }}</a>
+            {% endif %}
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <hr>
+                <a class="btn btn-secondary" href="{{ path('app_product_edit', {id: product.id}) }}">{{ 'product.edit.button'|trans }}</a>
+                <form class="d-inline" method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
+                      onsubmit="return confirm('{{ 'product.delete.confirm'|trans|e('js') }}')">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete-product-' ~ product.id) }}">
+                    <button class="btn btn-danger">{{ 'product.delete.button'|trans }}</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

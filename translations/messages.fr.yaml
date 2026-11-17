@@ -1,0 +1,141 @@
+# Every text not stored in the database goes through these keys (spec: 2 languages).
+site:
+    name: PokéShop · Cartes Pokémon
+
+nav:
+    home: Accueil
+    cart: Panier
+    account: Mon compte
+    super_admin: Super admin
+    login: Connexion
+    logout: Déconnexion
+    register: Inscription
+    language: Langue
+    role:
+        admin: Administrateur
+        super_admin: Super administrateur
+
+form:
+    save: Enregistrer
+    cancel: Annuler
+
+flash:
+    invalid_csrf: Jeton de sécurité invalide, veuillez réessayer.
+
+product:
+    list:
+        title: Nos cartes
+        add: Ajouter une carte
+        empty: Aucune carte en vente pour le moment.
+    sold_out: Rupture de stock
+    stock: 'Stock disponible : %count%'
+    login_to_buy: Connectez-vous pour acheter
+    new:
+        title: Nouvelle carte
+    edit:
+        title: Modifier la carte
+        button: Modifier
+    delete:
+        button: Supprimer
+        confirm: Supprimer définitivement cette carte ?
+    field:
+        name: Nom
+        description: Description
+        price: Prix
+        stock: Stock
+        photo: Photo (JPG, PNG ou WebP, 2 Mo max)
+    flash:
+        saved: La carte a été enregistrée.
+        deleted: La carte a été supprimée.
+    error:
+        in_use: '« %name% » est dans un panier ou une commande : mettez son stock à 0 au lieu de la supprimer.'
+
+cart:
+    title: Mon panier
+    empty: Votre panier est vide.
+    browse: Voir les cartes
+    add: Ajouter au panier
+    remove: Retirer
+    checkout: Acheter
+    field:
+        quantity: Quantité
+    table:
+        product: Produit
+        quantity: Quantité
+        price: Prix
+        amount: Montant
+        actions: Actions
+        total: Total
+    flash:
+        added: '« %name% » a été ajouté au panier.'
+        removed: Le produit a été retiré du panier.
+    error:
+        invalid_quantity: La quantité doit être un nombre supérieur à 0.
+        not_enough_stock: 'Stock insuffisant pour « %name% » (%stock% disponible(s)).'
+        not_yours: Cette ligne ne fait pas partie de votre panier.
+
+checkout:
+    flash:
+        success: Merci pour votre achat ! Votre commande est confirmée.
+    error:
+        empty: Votre panier est vide.
+        not_enough_stock: 'Il ne reste que %stock% exemplaire(s) de « %name% » : modifiez votre panier.'
+        payment_declined: Le paiement a été refusé.
+
+account:
+    title: Mon compte
+    profile: Mon profil
+    orders: Historique des commandes
+    no_orders: Vous n'avez encore passé aucune commande.
+    back: Retour à mon compte
+    flash:
+        saved: Votre profil a été mis à jour.
+    order:
+        number: N°
+        date: Date
+        amount: Montant
+        view: Voir
+        title: 'Commande n°%id%'
+        placed_on: 'Passée le %date%'
+
+super_admin:
+    title: Tableau de bord super admin
+    unpaid_carts: Paniers non achetés
+    cart_number: 'Panier n°%id%'
+    no_carts: Aucun panier en cours.
+    users_today: Inscrits aujourd'hui
+    no_users: Personne ne s'est inscrit aujourd'hui.
+    registered_at: Heure
+
+user:
+    field:
+        name: Nom
+        first_name: Prénom
+        last_name: Nom
+        email: E-mail
+        password: Mot de passe
+        password_repeat: Confirmer le mot de passe
+
+login:
+    title: Connexion
+    submit: Se connecter
+    no_account: Pas encore de compte ?
+
+register:
+    title: Créer un compte
+    submit: S'inscrire
+    has_account: Déjà inscrit ?
+    flash:
+        success: Compte créé ! Vous pouvez vous connecter.
+
+error:
+    back_home: Retour à l'accueil
+    '403':
+        title: Accès refusé
+        message: Vous n'avez pas le droit de voir cette page.
+    '404':
+        title: Page introuvable
+        message: Ce Pokémon s'est enfui… la page demandée n'existe pas.
+    generic:
+        title: Une erreur est survenue
+        message: Nos dresseurs sont sur le coup. Réessayez dans quelques instants.

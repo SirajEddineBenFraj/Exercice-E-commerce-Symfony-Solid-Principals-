@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block title %}{{ 'account.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">{{ 'account.title'|trans }}</h1>
+
+    <div class="row g-5">
+        <section class="col-lg-5">
+            <h2 class="h4">{{ 'account.profile'|trans }}</h2>
+            {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button class="btn btn-primary">{{ 'form.save'|trans }}</button>
+            {{ form_end(form) }}
+        </section>
+
+        <section class="col-lg-7">
+            <h2 class="h4">{{ 'account.orders'|trans }}</h2>
+            {% if orders is empty %}
+                <p class="text-body-secondary">{{ 'account.no_orders'|trans }}</p>
+            {% else %}
+                <table class="table table-hover align-middle bg-white">
+                    <thead>
+                        <tr>
+                            <th>{{ 'account.order.number'|trans }}</th>
+                            <th>{{ 'account.order.date'|trans }}</th>
+                            <th class="text-end">{{ 'account.order.amount'|trans }}</th>
+                            <th><span class="visually-hidden">{{ 'cart.table.actions'|trans }}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ ui.date(order.purchasedAt) }}</td>
+                                <td class="text-end">{{ ui.price(order.total) }}</td>
+                                <td class="text-end"><a href="{{ path('app_account_order', {id: order.id}) }}">{{ 'account.order.view'|trans }}</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{#
+    Custom error page (spec). Overrides TwigBundle's default; used for every status code.
+    Only visible with APP_DEBUG=0 (prod) — in dev, preview it at /_error/404 or /_error/403.
+#}
+{% extends 'base.html.twig' %}
+
+{% set known = status_code in [403, 404] %}
+
+{% block title %}{{ status_code }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="text-center py-5">
+        <p class="display-1 fw-bold text-body-secondary">{{ status_code }}</p>
+        <h1>{{ (known ? 'error.' ~ status_code ~ '.title' : 'error.generic.title')|trans }}</h1>
+        <p class="lead">{{ (known ? 'error.' ~ status_code ~ '.message' : 'error.generic.message')|trans }}</p>
+        <a class="btn btn-primary" href="{{ path('app_home') }}">{{ 'error.back_home'|trans }}</a>
+    </div>
+{% endblock %}

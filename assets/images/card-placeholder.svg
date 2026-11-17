@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 880" role="img" aria-label="Pokémon card back">
+  <rect width="630" height="880" rx="30" fill="#2a3799"/>
+  <rect x="24" y="24" width="582" height="832" rx="18" fill="#3b4cca" stroke="#ffcb05" stroke-width="10"/>
+  <g transform="translate(315 440)">
+    <path d="M-160 0a160 160 0 0 1 320 0z" fill="#ee1515"/>
+    <path d="M-160 0a160 160 0 0 0 320 0z" fill="#fff"/>
+    <circle r="160" fill="none" stroke="#222224" stroke-width="18"/>
+    <path d="M-160 0h320" stroke="#222224" stroke-width="18"/>
+    <circle r="50" fill="#fff" stroke="#222224" stroke-width="18"/>
+  </g>
+</svg>

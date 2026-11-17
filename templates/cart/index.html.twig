@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cart.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">{{ 'cart.title'|trans }}</h1>
+
+    {% if cart.empty %}
+        <p>{{ 'cart.empty'|trans }} <a href="{{ path('app_home') }}">{{ 'cart.browse'|trans }}</a></p>
+    {% else %}
+        {{ include('cart/_table.html.twig', {cart: cart, editable: true}) }}
+
+        {# The payment is simulated (FakePaymentGateway). #}
+        <form class="text-end" method="post" action="{{ path('app_cart_checkout') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('checkout') }}">
+            <button class="btn btn-success btn-lg">{{ 'cart.checkout'|trans }}</button>
+        </form>
+    {% endif %}
+{% endblock %}

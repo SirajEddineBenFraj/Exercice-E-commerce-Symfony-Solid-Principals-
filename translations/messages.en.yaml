@@ -1,0 +1,141 @@
+# Every text not stored in the database goes through these keys (spec: 2 languages).
+site:
+    name: PokéShop · Pokémon cards
+
+nav:
+    home: Home
+    cart: Cart
+    account: My account
+    super_admin: Super admin
+    login: Log in
+    logout: Log out
+    register: Sign up
+    language: Language
+    role:
+        admin: Administrator
+        super_admin: Super administrator
+
+form:
+    save: Save
+    cancel: Cancel
+
+flash:
+    invalid_csrf: Invalid security token, please try again.
+
+product:
+    list:
+        title: Our cards
+        add: Add a card
+        empty: No cards for sale yet.
+    sold_out: Sold out
+    stock: 'In stock: %count%'
+    login_to_buy: Log in to buy
+    new:
+        title: New card
+    edit:
+        title: Edit card
+        button: Edit
+    delete:
+        button: Delete
+        confirm: Delete this card for good?
+    field:
+        name: Name
+        description: Description
+        price: Price
+        stock: Stock
+        photo: Photo (JPG, PNG or WebP, 2 MB max)
+    flash:
+        saved: The card has been saved.
+        deleted: The card has been deleted.
+    error:
+        in_use: '"%name%" is in a cart or an order: set its stock to 0 instead of deleting it.'
+
+cart:
+    title: My cart
+    empty: Your cart is empty.
+    browse: Browse cards
+    add: Add to cart
+    remove: Remove
+    checkout: Buy
+    field:
+        quantity: Quantity
+    table:
+        product: Product
+        quantity: Quantity
+        price: Price
+        amount: Amount
+        actions: Actions
+        total: Total
+    flash:
+        added: '"%name%" was added to your cart.'
+        removed: The product was removed from your cart.
+    error:
+        invalid_quantity: The quantity must be a number greater than 0.
+        not_enough_stock: 'Not enough stock for "%name%" (%stock% available).'
+        not_yours: This line is not part of your cart.
+
+checkout:
+    flash:
+        success: Thank you for your purchase! Your order is confirmed.
+    error:
+        empty: Your cart is empty.
+        not_enough_stock: 'Only %stock% copies of "%name%" left: please update your cart.'
+        payment_declined: The payment was declined.
+
+account:
+    title: My account
+    profile: My profile
+    orders: Order history
+    no_orders: You have not placed any order yet.
+    back: Back to my account
+    flash:
+        saved: Your profile has been updated.
+    order:
+        number: No.
+        date: Date
+        amount: Amount
+        view: View
+        title: 'Order #%id%'
+        placed_on: 'Placed on %date%'
+
+super_admin:
+    title: Super admin dashboard
+    unpaid_carts: Unpaid carts
+    cart_number: 'Cart #%id%'
+    no_carts: No open carts.
+    users_today: Registered today
+    no_users: Nobody signed up today.
+    registered_at: Time
+
+user:
+    field:
+        name: Name
+        first_name: First name
+        last_name: Last name
+        email: Email
+        password: Password
+        password_repeat: Repeat password
+
+login:
+    title: Log in
+    submit: Log in
+    no_account: No account yet?
+
+register:
+    title: Create an account
+    submit: Sign up
+    has_account: Already registered?
+    flash:
+        success: Account created! You can now log in.
+
+error:
+    back_home: Back to home
+    '403':
+        title: Access denied
+        message: You are not allowed to see this page.
+    '404':
+        title: Page not found
+        message: This Pokémon fled… the page you asked for does not exist.
+    generic:
+        title: Something went wrong
+        message: Our trainers are on it. Please try again in a moment.

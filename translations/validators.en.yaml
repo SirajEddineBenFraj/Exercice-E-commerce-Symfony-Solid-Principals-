@@ -1,0 +1,6 @@
+# Custom validation messages (Symfony translates its built-in ones itself).
+user:
+    email:
+        taken: An account already exists with this email.
+    password:
+        mismatch: The two passwords do not match.

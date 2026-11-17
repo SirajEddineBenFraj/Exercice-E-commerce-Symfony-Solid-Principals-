@@ -1,0 +1,43 @@
+{#
+    Cart lines table, shared by the cart page, the order page and the super admin page.
+    Variables: cart (Cart), editable (bool: show the "remove" buttons).
+#}
+{% import '_macros.html.twig' as ui %}
+<div class="table-responsive">
+    <table class="table align-middle bg-white">
+        <thead>
+            <tr>
+                <th>{{ 'cart.table.product'|trans }}</th>
+                <th class="text-end">{{ 'cart.table.quantity'|trans }}</th>
+                <th class="text-end">{{ 'cart.table.price'|trans }}</th>
+                <th class="text-end">{{ 'cart.table.amount'|trans }}</th>
+                {% if editable %}<th><span class="visually-hidden">{{ 'cart.table.actions'|trans }}</span></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart.items %}
+                <tr>
+                    <td><a href="{{ path('app_product_show', {id: item.product.id}) }}">{{ item.product.name }}</a></td>
+                    <td class="text-end">{{ item.quantity }}</td>
+                    <td class="text-end">{{ ui.price(item.product.price) }}</td>
+                    <td class="text-end">{{ ui.price(item.lineTotal) }}</td>
+                    {% if editable %}
+                        <td class="text-end">
+                            <form method="post" action="{{ path('app_cart_remove', {id: item.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('remove-item-' ~ item.id) }}">
+                                <button class="btn btn-sm btn-outline-danger">{{ 'cart.remove'|trans }}</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3" class="text-end">{{ 'cart.table.total'|trans }}</th>
+                <th class="text-end">{{ ui.price(cart.total) }}</th>
+                {% if editable %}<th></th>{% endif %}
+            </tr>
+        </tfoot>
+    </table>
+</div>

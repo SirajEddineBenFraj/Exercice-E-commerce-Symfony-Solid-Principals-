@@ -1,0 +1,12 @@
+{# Small display helpers reused by several pages. #}
+
+{# Prices are stored in cents: 1250 -> "12,50 €" (fr) or "€12.50" (en). #}
+{% macro price(cents) %}{{ (cents / 100)|format_currency('EUR', locale: app.request.locale) }}{% endmacro %}
+
+{% macro date(value) %}{{ value|format_datetime('medium', 'short', locale: app.request.locale) }}{% endmacro %}
+
+{# Card picture, or the card-back placeholder when the product has no photo. #}
+{% macro card_picture(product) %}
+    <img class="card-picture" alt="{{ product.name }}" loading="lazy"
+         src="{{ product.photo ? asset('uploads/products/' ~ product.photo) : asset('images/card-placeholder.svg') }}">
+{% endmacro %}

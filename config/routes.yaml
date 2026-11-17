@@ -1,0 +1,7 @@
+# Every #[Route] in src/Controller is imported twice: once without prefix (French, default)
+# and once under /en (English). The {_locale} is set by the prefix, no custom code needed.
+controllers:
+    resource: routing.controllers
+    prefix:
+        fr: ''
+        en: '/en'

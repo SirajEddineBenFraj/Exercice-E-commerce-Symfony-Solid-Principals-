@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block title %}{{ 'super_admin.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1 class="mb-4">{{ 'super_admin.title'|trans }}</h1>
+
+    <div class="row g-5">
+        <section class="col-lg-7">
+            <h2 class="h4">{{ 'super_admin.unpaid_carts'|trans }}</h2>
+            {% for cart in unpaidCarts %}
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between">
+                        <strong>{{ 'super_admin.cart_number'|trans({'%id%': cart.id}) }}</strong>
+                        <span>{{ cart.user.firstName }} {{ cart.user.lastName }} &lt;{{ cart.user.email }}&gt;</span>
+                    </div>
+                    <div class="card-body pb-0">
+                        {{ include('cart/_table.html.twig', {cart: cart, editable: false}) }}
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-body-secondary">{{ 'super_admin.no_carts'|trans }}</p>
+            {% endfor %}
+        </section>
+
+        <section class="col-lg-5">
+            <h2 class="h4">{{ 'super_admin.users_today'|trans }}</h2>
+            {% if usersToday is empty %}
+                <p class="text-body-secondary">{{ 'super_admin.no_users'|trans }}</p>
+            {% else %}
+                <table class="table align-middle bg-white">
+                    <thead>
+                        <tr>
+                            <th>{{ 'user.field.name'|trans }}</th>
+                            <th>{{ 'user.field.email'|trans }}</th>
+                            <th>{{ 'super_admin.registered_at'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in usersToday %}
+                            <tr>
+                                <td>{{ user.firstName }} {{ user.lastName }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.createdAt|format_time('short', locale: app.request.locale) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

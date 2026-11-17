@@ -1,0 +1,84 @@
+{#
+    Layout shared by every page. The menu adapts to the visitor's role (spec):
+    anonymous -> login / register, ROLE_USER -> cart / account, ROLE_SUPER_ADMIN -> dashboard.
+#}
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}{{ 'site.name'|trans }}{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M5 50a45 45 0 0 1 90 0z%22 fill=%22%23ee1515%22/><path d=%22M5 50a45 45 0 0 0 90 0z%22 fill=%22%23fff%22/><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22none%22 stroke=%22%23222224%22 stroke-width=%228%22/><path d=%22M5 50h90%22 stroke=%22%23222224%22 stroke-width=%228%22/><circle cx=%2250%22 cy=%2250%22 r=%2214%22 fill=%22%23fff%22 stroke=%22%23222224%22 stroke-width=%228%22/></svg>">
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+        {# Localized routes are named "app_home.fr"; _canonical_route is the plain "app_home". Error pages have no route. #}
+        {% set route = app.request.attributes.get('_canonical_route') ?? app.request.attributes.get('_route') ?? 'app_home' %}
+        {% set routeParams = (app.request.attributes.get('_route_params') ?? {})|filter((value, key) => key != '_canonical_route') %}
+
+        <nav class="navbar navbar-expand navbar-shop sticky-top mb-4" data-bs-theme="dark">
+            <div class="container flex-wrap gap-2">
+                <a class="pokeball-logo me-2" href="{{ path('app_home') }}" aria-label="{{ 'nav.home'|trans }}">
+                    <svg viewBox="0 0 100 100" width="44" height="44" aria-hidden="true">
+                        <path d="M5 50a45 45 0 0 1 90 0z" fill="#ee1515"/>
+                        <path d="M5 50a45 45 0 0 0 90 0z" fill="#fff"/>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#222224" stroke-width="6"/>
+                        <path d="M5 50h90" stroke="#222224" stroke-width="6"/>
+                        <circle cx="50" cy="50" r="14" fill="#fff" stroke="#222224" stroke-width="6"/>
+                    </svg>
+                </a>
+
+                <ul class="navbar-nav me-auto flex-wrap">
+                    {% set links = [{route: 'app_home', label: 'nav.home'}] %}
+                    {% if is_granted('ROLE_USER') %}
+                        {% set links = links|merge([{route: 'app_cart', label: 'nav.cart'}, {route: 'app_account', label: 'nav.account'}]) %}
+                    {% endif %}
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        {% set links = links|merge([{route: 'app_super_admin', label: 'nav.super_admin'}]) %}
+                    {% endif %}
+                    {% for link in links %}
+                        <li class="nav-item">
+                            <a class="nav-link{{ route == link.route ? ' active' }}" href="{{ path(link.route) }}"{% if route == link.route %} aria-current="page"{% endif %}>{{ link.label|trans }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                        <span class="badge text-bg-danger">{{ 'nav.role.super_admin'|trans }}</span>
+                    {% elseif is_granted('ROLE_ADMIN') %}
+                        <span class="badge text-bg-warning">{{ 'nav.role.admin'|trans }}</span>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <span class="navbar-text text-white fw-semibold">{{ app.user.firstName }}</span>
+                        <a class="btn btn-sm btn-outline-light" href="{{ logout_path() }}">{{ 'nav.logout'|trans }}</a>
+                    {% else %}
+                        <a class="btn btn-sm btn-outline-light" href="{{ path('app_login') }}">{{ 'nav.login'|trans }}</a>
+                        <a class="btn btn-sm btn-yellow" href="{{ path('app_register') }}">{{ 'nav.register'|trans }}</a>
+                    {% endif %}
+
+                    {# Same page in the other language. #}
+                    <div class="btn-group btn-group-sm lang-switch" role="group" aria-label="{{ 'nav.language'|trans }}">
+                        {% for locale in ['fr', 'en'] %}
+                            <a class="btn{{ app.request.locale == locale ? ' active' }}" href="{{ path(route, routeParams|merge({_locale: locale})) }}" lang="{{ locale }}"{% if app.request.locale == locale %} aria-current="true"{% endif %}>{{ locale|upper }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container mb-5">
+            {# Flash messages: controllers store translation keys, translated here in the current language. #}
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type }}" role="alert">{{ message|trans }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+    </body>
+</html>

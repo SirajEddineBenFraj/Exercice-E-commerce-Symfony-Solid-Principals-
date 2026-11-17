@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block body %}
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+        <h1 class="mb-0">{{ 'product.list.title'|trans }}</h1>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn-primary" href="{{ path('app_product_new') }}">{{ 'product.list.add'|trans }}</a>
+        {% endif %}
+    </div>
+
+    {% if products is empty %}
+        <p class="text-body-secondary">{{ 'product.list.empty'|trans }}</p>
+    {% else %}
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4">
+            {% for product in products %}
+                <div class="col">
+                    <a class="product-tile text-decoration-none{{ product.inStock ? '' : ' sold-out' }}" href="{{ path('app_product_show', {id: product.id}) }}">
+                        <div class="card-frame">{{ ui.card_picture(product) }}</div>
+                        <h2 class="h6 mt-3 mb-1 text-body">{{ product.name }}</h2>
+                        <span class="price">{{ ui.price(product.price) }}</span>
+                        {% if not product.inStock %}
+                            <span class="badge text-bg-secondary">{{ 'product.sold_out'|trans }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

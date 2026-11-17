@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block title %}{{ 'account.order.title'|trans({'%id%': order.id}) }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'account.order.title'|trans({'%id%': order.id}) }}</h1>
+    <p class="text-body-secondary">{{ 'account.order.placed_on'|trans({'%date%': ui.date(order.purchasedAt)}) }}</p>
+
+    {# Same table as the cart, without the remove buttons (spec). #}
+    {{ include('cart/_table.html.twig', {cart: order, editable: false}) }}
+
+    <a href="{{ path('app_account') }}">&larr; {{ 'account.back'|trans }}</a>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as ui %}
+
+{% block title %}{{ title|trans }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <h1 class="mb-4">{{ title|trans }}</h1>
+            {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button class="btn btn-primary">{{ 'form.save'|trans }}</button>
+                <a class="btn btn-link" href="{{ product.id ? path('app_product_show', {id: product.id}) : path('app_home') }}">{{ 'form.cancel'|trans }}</a>
+            {{ form_end(form) }}
+        </div>
+        {% if product.id %}
+            <div class="col-sm-6 col-lg-3 offset-lg-1">{{ ui.card_picture(product) }}</div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,182 @@
+/* PokéShop theme on top of Bootstrap 5: Poké Ball red, logo blue and yellow. */
+:root {
+    --poke-red: #ee1515;
+    --poke-red-dark: #c20d0d;
+    --poke-blue: #3b4cca;
+    --poke-blue-dark: #2a3799;
+    --poke-yellow: #ffcb05;
+    --poke-yellow-dark: #e6b600;
+    --poke-ink: #222224;
+    --bs-link-color: var(--poke-blue);
+    --bs-link-color-rgb: 59, 76, 202;
+    --bs-link-hover-color: var(--poke-blue-dark);
+    --bs-link-hover-color-rgb: 42, 55, 153;
+}
+
+body {
+    background: #f6f6f8;
+}
+
+h1, h2 {
+    color: var(--poke-blue);
+    font-weight: 800;
+}
+
+/* Blue navbar with a yellow underline, stays on top while scrolling. */
+.navbar-shop {
+    background: linear-gradient(180deg, var(--poke-blue), var(--poke-blue-dark));
+    border-bottom: 5px solid var(--poke-yellow);
+    box-shadow: 0 2px 10px rgb(0 0 0 / .25);
+}
+
+.navbar-shop .nav-link {
+    position: relative;
+    font-weight: 600;
+    color: rgb(255 255 255 / .85);
+}
+
+.navbar-shop .nav-link.active {
+    color: #fff;
+}
+
+/* Yellow bar that slides in under the hovered link and stays under the current page. */
+.navbar-shop .nav-link::after {
+    content: "";
+    position: absolute;
+    inset: auto .5rem .15rem;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--poke-yellow);
+    transform: scaleX(0);
+    transition: transform .2s ease;
+}
+
+.navbar-shop .nav-link:hover::after,
+.navbar-shop .nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.pokeball-logo svg {
+    display: block;
+    transition: transform .4s ease;
+}
+
+.pokeball-logo:hover svg,
+.pokeball-logo:focus-visible svg {
+    transform: rotate(360deg);
+}
+
+/* Language switcher: active language in yellow. */
+.lang-switch .btn {
+    --bs-btn-color: #fff;
+    --bs-btn-border-color: rgb(255 255 255 / .5);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: rgb(255 255 255 / .15);
+    --bs-btn-active-color: var(--poke-ink);
+    --bs-btn-active-bg: var(--poke-yellow);
+    --bs-btn-active-border-color: var(--poke-yellow);
+    font-weight: 700;
+}
+
+/* Buttons: primary = Poké Ball red, plus a yellow one for sign-up. */
+.btn-primary {
+    --bs-btn-bg: var(--poke-red);
+    --bs-btn-border-color: var(--poke-red);
+    --bs-btn-hover-bg: var(--poke-red-dark);
+    --bs-btn-hover-border-color: var(--poke-red-dark);
+    --bs-btn-active-bg: var(--poke-red-dark);
+    --bs-btn-active-border-color: var(--poke-red-dark);
+    --bs-btn-disabled-bg: var(--poke-red);
+    --bs-btn-disabled-border-color: var(--poke-red);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--poke-red);
+    --bs-btn-border-color: var(--poke-red);
+    --bs-btn-hover-bg: var(--poke-red);
+    --bs-btn-hover-border-color: var(--poke-red);
+    --bs-btn-active-bg: var(--poke-red-dark);
+    --bs-btn-active-border-color: var(--poke-red-dark);
+}
+
+.btn-yellow {
+    --bs-btn-color: var(--poke-ink);
+    --bs-btn-bg: var(--poke-yellow);
+    --bs-btn-border-color: var(--poke-yellow);
+    --bs-btn-hover-color: var(--poke-ink);
+    --bs-btn-hover-bg: var(--poke-yellow-dark);
+    --bs-btn-hover-border-color: var(--poke-yellow-dark);
+    --bs-btn-active-color: var(--poke-ink);
+    --bs-btn-active-bg: var(--poke-yellow-dark);
+    font-weight: 700;
+}
+
+/* Price pill. */
+.price {
+    display: inline-block;
+    padding: .1rem .5rem;
+    border-radius: 1rem;
+    background: var(--poke-yellow);
+    color: var(--poke-ink);
+    font-weight: 700;
+}
+
+/* Image at the real Pokémon card format: 63 x 88 mm with 3 mm rounded corners. */
+.card-picture {
+    display: block;
+    width: 100%;
+    aspect-ratio: 63 / 88;
+    object-fit: cover;
+    border-radius: 4.76% / 3.41%;
+    box-shadow: 0 4px 12px rgb(0 0 0 / .25);
+}
+
+/* Catalog tile: the card lifts and tilts on hover with a holographic shine. */
+.product-tile {
+    display: block;
+    color: inherit;
+}
+
+.product-tile .card-frame {
+    position: relative;
+    border-radius: 4.76% / 3.41%;
+    transition: transform .25s ease;
+}
+
+.product-tile .card-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .55) 45%, rgb(255 203 5 / .35) 50%, transparent 65%);
+    background-size: 250% 100%;
+    background-position: 100% 0;
+    opacity: 0;
+    transition: opacity .25s ease, background-position .6s ease;
+    pointer-events: none;
+}
+
+.product-tile:hover .card-frame,
+.product-tile:focus-visible .card-frame {
+    transform: translateY(-6px) rotate(-1.5deg);
+}
+
+.product-tile:hover .card-frame::after,
+.product-tile:focus-visible .card-frame::after {
+    opacity: 1;
+    background-position: 0 0;
+}
+
+/* Sold-out card in black and white. */
+.product-tile.sold-out .card-picture {
+    filter: grayscale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pokeball-logo svg,
+    .product-tile .card-frame,
+    .product-tile .card-frame::after,
+    .navbar-shop .nav-link::after {
+        transition: none;
+    }
+}
