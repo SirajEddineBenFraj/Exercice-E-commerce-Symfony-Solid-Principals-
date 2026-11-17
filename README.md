@@ -2,8 +2,8 @@
 
 A Pokémon card shop: catalog, cart, simulated payment, order history, admin and super admin areas,
 FR/EN. Built to show the **SOLID principles** and the **Controller / Repository / Service** architecture.
-Read [SOLID.md](SOLID.md) for the full explanation, with links to the code.
-French audit report of every SOLID decision (how, where, why): [RAPPORT_SOLID.md](RAPPORT_SOLID.md).
+Read [docs/SOLID.md](docs/SOLID.md) for the full explanation, with links to the code.
+French audit report of every SOLID decision (how, where, why): [docs/RAPPORT_SOLID.md](docs/RAPPORT_SOLID.md).
 
 
 ## Stack

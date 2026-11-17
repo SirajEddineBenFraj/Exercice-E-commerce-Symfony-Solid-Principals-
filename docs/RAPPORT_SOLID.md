@@ -32,14 +32,14 @@ Dans le code, les commentaires qui commencent par `SOLID (...)` ou `LAYER:` marq
 
 | Couche | Dossier | Ce qu'elle fait | Ce qu'elle ne fait jamais |
 |---|---|---|---|
-| Contrôleur | [src/Controller](src/Controller) | lit la requête HTTP, vérifie les droits et le jeton CSRF, appelle un service ou un repository, ajoute un message flash, affiche une page ou redirige | écrire une requête SQL, appliquer une règle métier |
-| Service | [src/Service](src/Service) | applique les règles métier : stock suffisant, fusion des quantités, paiement, transaction | manipuler `Request`, `Response` ou Twig |
-| Repository | [src/Repository](src/Repository) | contient toutes les requêtes en base, nommées selon leur sens | décider quoi faire des données |
-| Entité | [src/Entity](src/Entity) | porte les données, leurs règles de validation (`#[Assert]`) et de petits calculs sur ses propres champs (`Cart::getTotal()`) | interroger la base |
+| Contrôleur | [src/Controller](../src/Controller) | lit la requête HTTP, vérifie les droits et le jeton CSRF, appelle un service ou un repository, ajoute un message flash, affiche une page ou redirige | écrire une requête SQL, appliquer une règle métier |
+| Service | [src/Service](../src/Service) | applique les règles métier : stock suffisant, fusion des quantités, paiement, transaction | manipuler `Request`, `Response` ou Twig |
+| Repository | [src/Repository](../src/Repository) | contient toutes les requêtes en base, nommées selon leur sens | décider quoi faire des données |
+| Entité | [src/Entity](../src/Entity) | porte les données, leurs règles de validation (`#[Assert]`) et de petits calculs sur ses propres champs (`Cart::getTotal()`) | interroger la base |
 
-Les autres briques suivent la même logique. Les types de formulaire ([src/Form](src/Form)) décrivent des champs,
-le voter ([src/Security/Voter/OrderVoter.php](src/Security/Voter/OrderVoter.php)) décide d'une permission, les templates
-Twig affichent et les fichiers de [translations](translations) contiennent tous les textes visibles.
+Les autres briques suivent la même logique. Les types de formulaire ([src/Form](../src/Form)) décrivent des champs,
+le voter ([src/Security/Voter/OrderVoter.php](../src/Security/Voter/OrderVoter.php)) décide d'une permission, les templates
+Twig affichent et les fichiers de [translations](../translations) contiennent tous les textes visibles.
 
 ### Pourquoi ce découpage
 
@@ -49,8 +49,8 @@ touchent chacun un seul dossier. Deux personnes peuvent donc travailler en même
 Les règles métier deviennent aussi réutilisables. `CartService` ne sait pas qu'il est appelé depuis une page web :
 une API JSON ou une commande console pourrait l'appeler demain sans modification.
 
-Enfin, une règle isolée se teste sans navigateur. [tests/Service](tests/Service) vérifie le stock et le paiement
-sans base de données, alors que [tests/Controller/ShopFlowTest.php](tests/Controller/ShopFlowTest.php) vérifie le
+Enfin, une règle isolée se teste sans navigateur. [tests/Service](../tests/Service) vérifie le stock et le paiement
+sans base de données, alors que [tests/Controller/ShopFlowTest.php](../tests/Controller/ShopFlowTest.php) vérifie le
 parcours complet par HTTP.
 
 ### Exemple : "Ajouter au panier" (POST /cart/add/3)
@@ -68,19 +68,19 @@ Navigateur ── POST /cart/add/3 ──▶ CartController::add
                                    Base de données
 ```
 
-Le contrôleur [CartController.php](src/Controller/CartController.php) ne contient aucune règle. Il attrape la
+Le contrôleur [CartController.php](../src/Controller/CartController.php) ne contient aucune règle. Il attrape la
 `ShopException`, la transforme en message flash rouge et redirige vers la fiche produit.
 
 ### Exemple : "Acheter" (POST /cart/checkout)
 
-[CheckoutService::checkout](src/Service/CheckoutService.php) fait tout dans une seule transaction. Pour chaque ligne,
+[CheckoutService::checkout](../src/Service/CheckoutService.php) fait tout dans une seule transaction. Pour chaque ligne,
 il relit le stock en verrouillant la ligne du produit, vérifie qu'il est suffisant et le diminue. Il appelle ensuite
 la passerelle de paiement, puis marque le panier comme payé avec la date du jour. Si une exception survient à n'importe
 quelle étape, rien n'est enregistré. Le paiement est appelé en dernier pour qu'un refus annule aussi la baisse de stock.
 
 ### L'exception assumée : la lecture seule
 
-[SuperAdminController](src/Controller/SuperAdminController.php) et `ProductController::index` appellent directement un
+[SuperAdminController](../src/Controller/SuperAdminController.php) et `ProductController::index` appellent directement un
 repository. Il n'y a aucune règle à appliquer, seulement des données à afficher. Un `SuperAdminService` qui se
 contenterait de relayer `findUnpaidCarts()` ajouterait un fichier sans rien apporter. Dès qu'il y a une décision à prendre
 ou une écriture en base, le code passe par un service.
@@ -105,11 +105,11 @@ et PHP refuse de l'exécuter si la promesse n'est pas tenue.
 
 Dans le projet, la chaîne complète se lit en quatre fichiers :
 
-1. [PaymentGatewayInterface.php](src/Service/Payment/PaymentGatewayInterface.php) définit le contrat `pay()`.
-2. [FakePaymentGateway.php](src/Service/Payment/FakePaymentGateway.php) l'implémente. Tous les paiements réussissent,
+1. [PaymentGatewayInterface.php](../src/Service/Payment/PaymentGatewayInterface.php) définit le contrat `pay()`.
+2. [FakePaymentGateway.php](../src/Service/Payment/FakePaymentGateway.php) l'implémente. Tous les paiements réussissent,
    ce que le sujet autorise ("le paiement peut être simulé"). L'attribut `#[AsAlias(PaymentGatewayInterface::class)]`
    indique à Symfony quelle classe fournir quand on lui demande l'interface.
-3. [CheckoutService.php](src/Service/CheckoutService.php) demande l'interface dans son constructeur, jamais la classe concrète.
+3. [CheckoutService.php](../src/Service/CheckoutService.php) demande l'interface dans son constructeur, jamais la classe concrète.
 4. Le conteneur de services de Symfony construit l'ensemble tout seul (autowiring) : il voit que `CheckoutService` a besoin
    d'un `PaymentGatewayInterface`, trouve l'alias vers `FakePaymentGateway`, crée les deux objets et les relie.
 
@@ -128,13 +128,13 @@ de demander des modifications.
 
 | Classe | Sa responsabilité | Qui demanderait de la modifier |
 |---|---|---|
-| [ProductController](src/Controller/ProductController.php) | traduire les requêtes HTTP du catalogue en appels et en pages | l'équipe web |
-| [CartRepository](src/Repository/CartRepository.php) | récupérer les paniers en base | la personne qui gère la base |
-| [CartService](src/Service/CartService.php) | les règles du panier (panier courant, fusion des quantités, limite de stock) | le métier |
-| [CheckoutService](src/Service/CheckoutService.php) | transformer un panier en commande payée | le métier (paiement, stock) |
-| [FileUploader](src/Service/FileUploader.php) | déplacer des fichiers sur le disque | le stockage de fichiers uniquement |
-| [OrderVoter](src/Security/Voter/OrderVoter.php) | répondre à "cet utilisateur peut-il voir cette commande ?" | la sécurité |
-| [cart/_table.html.twig](templates/cart/_table.html.twig) | afficher les lignes d'un panier | le design |
+| [ProductController](../src/Controller/ProductController.php) | traduire les requêtes HTTP du catalogue en appels et en pages | l'équipe web |
+| [CartRepository](../src/Repository/CartRepository.php) | récupérer les paniers en base | la personne qui gère la base |
+| [CartService](../src/Service/CartService.php) | les règles du panier (panier courant, fusion des quantités, limite de stock) | le métier |
+| [CheckoutService](../src/Service/CheckoutService.php) | transformer un panier en commande payée | le métier (paiement, stock) |
+| [FileUploader](../src/Service/FileUploader.php) | déplacer des fichiers sur le disque | le stockage de fichiers uniquement |
+| [OrderVoter](../src/Security/Voter/OrderVoter.php) | répondre à "cet utilisateur peut-il voir cette commande ?" | la sécurité |
+| [cart/_table.html.twig](../templates/cart/_table.html.twig) | afficher les lignes d'un panier | le design |
 
 Quelques choix précis découlent de ce principe.
 
@@ -142,13 +142,13 @@ Quelques choix précis découlent de ce principe.
 dépendances différentes : seul le paiement a besoin d'une passerelle.
 
 `FileUploader` ne connaît pas les produits. Il génère un nom aléatoire, déplace le fichier et sait le supprimer.
-La décision de remplacer l'ancienne photo d'un produit appartient à [ProductService](src/Service/ProductService.php).
+La décision de remplacer l'ancienne photo d'un produit appartient à [ProductService](../src/Service/ProductService.php).
 Le même uploader pourrait donc gérer des avatars sans changement.
 
 Le tableau des lignes de panier est un template partiel unique, inclus par la page panier, la page de commande et le
 tableau de bord super admin. Une modification de colonne se fait à un seul endroit.
 
-Les erreurs métier passent par [ShopException](src/Exception/ShopException.php), qui transporte une clé de traduction et
+Les erreurs métier passent par [ShopException](../src/Exception/ShopException.php), qui transporte une clé de traduction et
 ses paramètres. Le service décide de l'erreur, le contrôleur la transforme en message flash et Twig la traduit dans la
 langue du visiteur. Aucune de ces trois briques ne fait le travail d'une autre.
 
@@ -158,7 +158,7 @@ Sans ce principe, le paiement serait écrit directement dans le contrôleur : re
 vérification du stock et appel au paiement dans une seule méthode. Pour ajouter une API mobile, il faudrait copier cette
 logique, et les deux copies finiraient par diverger. Il serait aussi impossible de tester la règle "stock insuffisant"
 sans simuler une requête HTTP, une session et un utilisateur connecté. Avec le découpage actuel,
-[CheckoutServiceTest](tests/Service/CheckoutServiceTest.php) la teste en quelques lignes, sans base de données.
+[CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php) la teste en quelques lignes, sans base de données.
 
 ---
 
@@ -169,11 +169,11 @@ Le code doit être ouvert à l'extension et fermé à la modification. On ajoute
 
 ### Où et comment
 
-Le premier cas concerne les passerelles de paiement. [CheckoutService](src/Service/CheckoutService.php) ne connaît que
+Le premier cas concerne les passerelles de paiement. [CheckoutService](../src/Service/CheckoutService.php) ne connaît que
 `PaymentGatewayInterface`. Pour passer à Stripe, on écrit une classe `StripePaymentGateway` qui implémente l'interface et
 on déplace l'attribut `#[AsAlias]` sur elle. `CheckoutService` n'est pas modifié, il ne peut donc pas être cassé.
 
-Le deuxième cas est la hiérarchie des rôles, dans [config/packages/security.yaml](config/packages/security.yaml) :
+Le deuxième cas est la hiérarchie des rôles, dans [config/packages/security.yaml](../config/packages/security.yaml) :
 
 ```yaml
 role_hierarchy:
@@ -186,12 +186,12 @@ Le sujet impose que le super admin ait tous les droits de l'admin. Aucune condit
 accepte automatiquement le super admin. Un nouveau rôle s'ajoute dans ce fichier, sans toucher aux contrôleurs.
 
 Le troisième cas est le voter. La page de commande déclare seulement
-`#[IsGranted(OrderVoter::VIEW, subject: 'order')]` dans [AccountController](src/Controller/AccountController.php).
+`#[IsGranted(OrderVoter::VIEW, subject: 'order')]` dans [AccountController](../src/Controller/AccountController.php).
 Une nouvelle règle (par exemple "le service client voit toutes les commandes") s'ajouterait dans un voter, sans modifier
 le contrôleur.
 
-Le dernier cas concerne les formulaires. [RegistrationFormType](src/Form/RegistrationFormType.php) déclare
-`getParent(): ProfileType::class` et ajoute seulement le champ mot de passe. [ProfileType](src/Form/ProfileType.php)
+Le dernier cas concerne les formulaires. [RegistrationFormType](../src/Form/RegistrationFormType.php) déclare
+`getParent(): ProfileType::class` et ajoute seulement le champ mot de passe. [ProfileType](../src/Form/ProfileType.php)
 reste intact, et une modification d'un champ du profil s'applique aux deux formulaires.
 
 ### Pourquoi
@@ -211,18 +211,18 @@ ce qui est renvoyé, les exceptions possibles).
 ### Où et comment
 
 Le contrat des passerelles de paiement est écrit noir sur blanc dans la documentation de
-[PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php) : la méthode renvoie toujours un `PaymentResult`,
+[PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php) : la méthode renvoie toujours un `PaymentResult`,
 et un paiement refusé est un résultat normal (`PaymentResult::declined()`), pas une exception.
 
-Ce contrat est vérifié par les tests. [CheckoutServiceTest](tests/Service/CheckoutServiceTest.php) définit deux autres
+Ce contrat est vérifié par les tests. [CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php) définit deux autres
 implémentations, `AcceptingGateway` et `DecliningGateway`, et les passe à `CheckoutService` à la place de la vraie passerelle.
 Le test `testDeclinedPaymentThrowsAndLeavesCartUnpaid` montre que le service gère le refus correctement sans savoir quelle
 implémentation il a reçue.
 
-Le principe s'applique aussi à l'héritage. Les repositories, comme [ProductRepository](src/Repository/ProductRepository.php),
+Le principe s'applique aussi à l'héritage. Les repositories, comme [ProductRepository](../src/Repository/ProductRepository.php),
 étendent `ServiceEntityRepository` et ne font qu'ajouter des méthodes (`findCatalog()`). `find()` et `findBy()` gardent leur
 comportement d'origine, donc tout code qui attend un repository Doctrine peut les utiliser. De même,
-[OrderVoter](src/Security/Voter/OrderVoter.php) étend la classe `Voter` de Symfony et renvoie un booléen comme prévu :
+[OrderVoter](../src/Security/Voter/OrderVoter.php) étend la classe `Voter` de Symfony et renvoie un booléen comme prévu :
 Symfony l'interroge exactement comme ses propres voters.
 
 ### Pourquoi
@@ -242,12 +242,12 @@ petites interfaces qu'une grosse interface qui fait tout.
 
 ### Où et comment
 
-L'entité [User](src/Entity/User.php) implémente deux interfaces de Symfony : `UserInterface` ("peut être connecté" :
+L'entité [User](../src/Entity/User.php) implémente deux interfaces de Symfony : `UserInterface` ("peut être connecté" :
 identifiant et rôles) et `PasswordAuthenticatedUserInterface` ("se connecte avec un mot de passe"). Symfony les a séparées
 volontairement. Un utilisateur qui se connecterait par Google ou par lien magique n'implémenterait que la première, sans
 méthode `getPassword()` factice.
 
-Notre propre [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php) ne contient qu'une méthode, `pay()`.
+Notre propre [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php) ne contient qu'une méthode, `pay()`.
 La boutique ne rembourse pas et ne gère pas d'abonnements, donc l'interface ne demande ni `refund()` ni `createSubscription()`.
 
 ### Pourquoi
@@ -279,7 +279,7 @@ Avec inversion :  CheckoutService ──▶ PaymentGatewayInterface ◀── Fa
 
 Toutes les dépendances arrivent par le constructeur ou par les arguments des actions : `CartService $cartService`,
 `ProductRepository $products`, et ainsi de suite. On ne trouve aucun `new CartService()` dans `src/`. Le conteneur de Symfony
-construit et relie les objets ([config/services.yaml](config/services.yaml), `autowire: true`).
+construit et relie les objets ([config/services.yaml](../config/services.yaml), `autowire: true`).
 
 On demande toujours les interfaces de Symfony plutôt que leurs classes concrètes : `EntityManagerInterface`,
 `UserPasswordHasherInterface`, `AccessDecisionManagerInterface`.
@@ -291,7 +291,7 @@ l'information "quelle implémentation est active" se trouve sur la classe concer
 
 Si `CheckoutService` créait lui-même `new StripePaymentGateway('sk_live_...')`, chaque exécution des tests débiterait une vraie
 carte, et la clé secrète serait écrite dans le code. Grâce à l'injection, les tests unitaires de
-[CheckoutServiceTest](tests/Service/CheckoutServiceTest.php) et [CartServiceTest](tests/Service/CartServiceTest.php)
+[CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php) et [CartServiceTest](../tests/Service/CartServiceTest.php)
 passent de fausses dépendances (une passerelle de test, un `EntityManager` simulé) et ne touchent ni banque ni base de données.
 Changer de prestataire ne demande pas non plus de modifier le code métier.
 
@@ -307,7 +307,7 @@ on n'écrit pas ce dont on n'a pas besoin aujourd'hui).
 | `CartServiceInterface`, `ProductServiceInterface`, `UserServiceInterface` | une seule implémentation, rien à remplacer, et les tests utilisent la vraie classe sans difficulté |
 | une classe d'exception par erreur métier | une seule `ShopException` qui porte une clé de traduction couvre tous les cas |
 | un service pour le tableau de bord super admin | page en lecture seule, aucune règle à appliquer |
-| un `RegistrationController` séparé | l'inscription tient en une quinzaine de lignes, elle est rangée à côté de la connexion dans [SecurityController](src/Controller/SecurityController.php) |
+| un `RegistrationController` séparé | l'inscription tient en une quinzaine de lignes, elle est rangée à côté de la connexion dans [SecurityController](../src/Controller/SecurityController.php) |
 
 On crée une interface quand au moins une de ces conditions est remplie : il existe (ou il existera clairement) plusieurs
 implémentations, ou bien il faut remplacer la vraie implémentation dans les tests parce qu'elle est lente, coûteuse ou
@@ -320,13 +320,13 @@ externe. La passerelle de paiement remplit les deux. Les services du panier ou d
 Ces choix ne sont pas des principes SOLID au sens strict, mais ils découlent du même découpage et sont implémentés
 dans la couche indiquée.
 
-Les prix sont stockés en centimes (entier) dans [Product](src/Entity/Product.php). Les nombres à virgule produisent des
-erreurs d'arrondi sur les montants. Le formulaire ([ProductType](src/Form/ProductType.php)) affiche des euros grâce à
+Les prix sont stockés en centimes (entier) dans [Product](../src/Entity/Product.php). Les nombres à virgule produisent des
+erreurs d'arrondi sur les montants. Le formulaire ([ProductType](../src/Form/ProductType.php)) affiche des euros grâce à
 `MoneyType` avec `divisor: 100`, et Twig formate le prix selon la langue.
 
 Ajouter une carte déjà présente dans le panier augmente sa quantité au lieu de créer une deuxième ligne, et la quantité
 ne peut pas dépasser le stock. Ces deux règles sont dans `CartService::addProduct` et testées dans
-[CartServiceTest](tests/Service/CartServiceTest.php).
+[CartServiceTest](../tests/Service/CartServiceTest.php).
 
 Le paiement se fait dans une transaction avec verrouillage des lignes produit (`LockMode::PESSIMISTIC_WRITE`), dans
 `CheckoutService`. Deux acheteurs ne peuvent pas prendre la dernière carte en même temps, et un paiement refusé annule la
@@ -339,7 +339,7 @@ Les dates (`createdAt` de l'utilisateur, `addedAt` d'une ligne, `purchasedAt` d'
 dans les constructeurs ou au paiement, et n'apparaissent dans aucun formulaire, comme l'exige le sujet. Le champ
 `createdAt` a été ajouté à l'utilisateur parce que la liste "inscrits aujourd'hui" du super admin en a besoin.
 
-L'accès aux pages est contrôlé deux fois : par URL dans `access_control` ([security.yaml](config/packages/security.yaml))
+L'accès aux pages est contrôlé deux fois : par URL dans `access_control` ([security.yaml](../config/packages/security.yaml))
 et par `#[IsGranted]` sur chaque contrôleur. Si l'une des deux protections est mal configurée, l'autre bloque encore l'accès.
 
 ---
@@ -348,11 +348,11 @@ et par `#[IsGranted]` sur chaque contrôleur. Si l'une des deux protections est 
 
 | Principe | Fichiers principaux | Bénéfice concret dans PokéShop |
 |---|---|---|
-| S | [CartService](src/Service/CartService.php), [CheckoutService](src/Service/CheckoutService.php), [FileUploader](src/Service/FileUploader.php), [OrderVoter](src/Security/Voter/OrderVoter.php), [cart/_table.html.twig](templates/cart/_table.html.twig) | des contrôleurs de quelques lignes, des règles testées sans HTTP, un tableau de panier modifié à un seul endroit |
-| O | [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php), [security.yaml](config/packages/security.yaml), [OrderVoter](src/Security/Voter/OrderVoter.php), [RegistrationFormType](src/Form/RegistrationFormType.php) | nouveau prestataire de paiement, nouveau rôle ou nouvelle règle d'accès sans modifier le code existant |
-| L | [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php), [CheckoutServiceTest](tests/Service/CheckoutServiceTest.php), repositories, [OrderVoter](src/Security/Voter/OrderVoter.php) | n'importe quelle passerelle qui respecte le contrat fonctionne, ce que le test avec `DecliningGateway` vérifie |
-| I | [User](src/Entity/User.php), [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php) | aucune méthode factice à écrire |
-| D | [CheckoutService](src/Service/CheckoutService.php), [FakePaymentGateway](src/Service/Payment/FakePaymentGateway.php), tous les constructeurs | tests sans base ni banque, prestataire interchangeable |
+| S | [CartService](../src/Service/CartService.php), [CheckoutService](../src/Service/CheckoutService.php), [FileUploader](../src/Service/FileUploader.php), [OrderVoter](../src/Security/Voter/OrderVoter.php), [cart/_table.html.twig](../templates/cart/_table.html.twig) | des contrôleurs de quelques lignes, des règles testées sans HTTP, un tableau de panier modifié à un seul endroit |
+| O | [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php), [security.yaml](../config/packages/security.yaml), [OrderVoter](../src/Security/Voter/OrderVoter.php), [RegistrationFormType](../src/Form/RegistrationFormType.php) | nouveau prestataire de paiement, nouveau rôle ou nouvelle règle d'accès sans modifier le code existant |
+| L | [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php), [CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php), repositories, [OrderVoter](../src/Security/Voter/OrderVoter.php) | n'importe quelle passerelle qui respecte le contrat fonctionne, ce que le test avec `DecliningGateway` vérifie |
+| I | [User](../src/Entity/User.php), [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php) | aucune méthode factice à écrire |
+| D | [CheckoutService](../src/Service/CheckoutService.php), [FakePaymentGateway](../src/Service/Payment/FakePaymentGateway.php), tous les constructeurs | tests sans base ni banque, prestataire interchangeable |
 
 Les 15 tests du projet (7 tests unitaires des services, 8 tests fonctionnels du parcours complet) se lancent avec
 `php bin/phpunit`.

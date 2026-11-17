@@ -74,11 +74,11 @@ It does not care whether the electricity comes from a nuclear plant, solar panel
 
 ### Follow it in the real code, step by step
 
-1. [PaymentGatewayInterface.php](src/Service/Payment/PaymentGatewayInterface.php) defines the contract `pay()`.
-2. [FakePaymentGateway.php](src/Service/Payment/FakePaymentGateway.php) implements it (every payment succeeds; the spec allows a simulated payment).
+1. [PaymentGatewayInterface.php](../src/Service/Payment/PaymentGatewayInterface.php) defines the contract `pay()`.
+2. [FakePaymentGateway.php](../src/Service/Payment/FakePaymentGateway.php) implements it (every payment succeeds; the spec allows a simulated payment).
    It carries `#[AsAlias(PaymentGatewayInterface::class)]`, which tells Symfony:
    *"when someone asks for the interface, give them this class"*.
-3. [CheckoutService.php](src/Service/CheckoutService.php) asks for the **interface** in its constructor:
+3. [CheckoutService.php](../src/Service/CheckoutService.php) asks for the **interface** in its constructor:
    ```php
    public function __construct(
        private readonly EntityManagerInterface $entityManager,
@@ -90,7 +90,7 @@ It does not care whether the electricity comes from a nuclear plant, solar panel
    - "who is the alias for that interface? `FakePaymentGateway`"
    - `new FakePaymentGateway()`, then `new CheckoutService($entityManager, $thatGateway)`.
    You never write those `new` lines yourself. That is **autowiring**.
-5. In [CheckoutServiceTest.php](tests/Service/CheckoutServiceTest.php) we build `CheckoutService` **by hand** with two
+5. In [CheckoutServiceTest.php](../tests/Service/CheckoutServiceTest.php) we build `CheckoutService` **by hand** with two
    other implementations: `AcceptingGateway` and `DecliningGateway`. CheckoutService does not notice the difference.
    That is the whole point.
 
@@ -107,7 +107,7 @@ which we extend to reuse their code), and everything else is a normal class.
 
 ### Interfaces you already use without noticing
 
-- [User.php](src/Entity/User.php) `implements UserInterface, PasswordAuthenticatedUserInterface`: that is how Symfony's
+- [User.php](../src/Entity/User.php) `implements UserInterface, PasswordAuthenticatedUserInterface`: that is how Symfony's
   login system can work with **our** User class without knowing it.
 - Every form (`ProductType`...) extends `AbstractType`, which implements Symfony's `FormTypeInterface`.
 - `EntityManagerInterface`, `UserPasswordHasherInterface`: we always type-hint the Symfony **interface**, not the concrete class.
@@ -132,13 +132,13 @@ Create an interface when **at least one** is true:
 
 | Class | Its single job | Who would ask to change it |
 |---|---|---|
-| [ProductController](src/Controller/ProductController.php) | turn HTTP requests into calls and pages | the web/UX side |
-| [CartRepository](src/Repository/CartRepository.php) | fetch carts from the database | the database side |
-| [CartService](src/Service/CartService.php) | cart rules (merge quantities, stock limit) | the business side |
-| [CheckoutService](src/Service/CheckoutService.php) | turn a cart into a paid order | the business side (payment, stock) |
-| [FileUploader](src/Service/FileUploader.php) | move files on disk | nobody but "file storage" |
-| [OrderVoter](src/Security/Voter/OrderVoter.php) | answer "may this user see this order?" | the security side |
-| [cart/_table.html.twig](templates/cart/_table.html.twig) | display cart lines (reused 3 times) | the design side |
+| [ProductController](../src/Controller/ProductController.php) | turn HTTP requests into calls and pages | the web/UX side |
+| [CartRepository](../src/Repository/CartRepository.php) | fetch carts from the database | the database side |
+| [CartService](../src/Service/CartService.php) | cart rules (merge quantities, stock limit) | the business side |
+| [CheckoutService](../src/Service/CheckoutService.php) | turn a cart into a paid order | the business side (payment, stock) |
+| [FileUploader](../src/Service/FileUploader.php) | move files on disk | nobody but "file storage" |
+| [OrderVoter](../src/Security/Voter/OrderVoter.php) | answer "may this user see this order?" | the security side |
+| [cart/_table.html.twig](../templates/cart/_table.html.twig) | display cart lines (reused 3 times) | the design side |
 
 ### The "bad" version it avoids: a fat controller
 
@@ -167,7 +167,7 @@ public function checkout(EntityManagerInterface $em): Response
 - You want a JSON API for a mobile app later: you must **copy** the whole checkout logic into the API controller.
   Two copies drift apart, and one day a bug gets fixed in only one of them.
 - You cannot test "not enough stock" without simulating an HTTP request, a session, a logged-in user...
-  Look at [CheckoutServiceTest](tests/Service/CheckoutServiceTest.php): it tests the rule in a few lines, with no database at all.
+  Look at [CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php): it tests the rule in a few lines, with no database at all.
 
 ---
 
@@ -178,10 +178,10 @@ public function checkout(EntityManagerInterface $em): Response
 
 ### Where it is in PokéShop
 
-1. **Payment providers.** [CheckoutService](src/Service/CheckoutService.php) only knows `PaymentGatewayInterface`.
+1. **Payment providers.** [CheckoutService](../src/Service/CheckoutService.php) only knows `PaymentGatewayInterface`.
    Adding Stripe means writing `StripePaymentGateway implements PaymentGatewayInterface` and moving the `#[AsAlias]` attribute.
    `CheckoutService` is **not edited**, so it cannot get broken.
-2. **Role hierarchy** in [security.yaml](config/packages/security.yaml):
+2. **Role hierarchy** in [security.yaml](../config/packages/security.yaml):
    ```yaml
    role_hierarchy:
        ROLE_ADMIN: ROLE_USER
@@ -190,9 +190,9 @@ public function checkout(EntityManagerInterface $em): Response
    The spec says "SUPER_ADMIN has all ADMIN rights". We wrote **zero** `if ($role === 'ADMIN' || $role === 'SUPER_ADMIN')`.
    Every `#[IsGranted('ROLE_ADMIN')]` automatically accepts super admins.
 3. **Voters.** A new permission rule (e.g. "support staff may see all orders") = a new voter class. The controller line
-   `#[IsGranted(OrderVoter::VIEW, subject: 'order')]` in [AccountController](src/Controller/AccountController.php) stays as is.
-4. **Forms.** [RegistrationFormType](src/Form/RegistrationFormType.php) uses `getParent(): ProfileType::class`.
-   It **extends** the profile form with a password field without touching [ProfileType](src/Form/ProfileType.php).
+   `#[IsGranted(OrderVoter::VIEW, subject: 'order')]` in [AccountController](../src/Controller/AccountController.php) stays as is.
+4. **Forms.** [RegistrationFormType](../src/Form/RegistrationFormType.php) uses `getParent(): ProfileType::class`.
+   It **extends** the profile form with a password field without touching [ProfileType](../src/Form/ProfileType.php).
 
 ### The "bad" version
 
@@ -220,15 +220,15 @@ Each new provider means re-opening and re-testing working code. A typo in the Pa
 ### Where it is in PokéShop
 
 1. **Payment gateways.** The contract is written in the docblock of
-   [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php):
+   [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php):
    *always return a `PaymentResult`; a declined card is a normal result, NOT an exception.*
    - `FakePaymentGateway` respects it.
-   - In [CheckoutServiceTest](tests/Service/CheckoutServiceTest.php), `DecliningGateway` respects it too: it **returns** `PaymentResult::declined()`.
+   - In [CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php), `DecliningGateway` respects it too: it **returns** `PaymentResult::declined()`.
    - `CheckoutService` works with both, unchanged. The test `testDeclinedPaymentThrowsAndLeavesCartUnpaid` proves it.
-2. **Repositories.** [ProductRepository](src/Repository/ProductRepository.php) extends `ServiceEntityRepository`.
+2. **Repositories.** [ProductRepository](../src/Repository/ProductRepository.php) extends `ServiceEntityRepository`.
    It only **adds** methods (`findCatalog()`), never changes what `find()` or `findBy()` do. Any code expecting a Doctrine
    repository can use it safely.
-3. **Voters.** [OrderVoter](src/Security/Voter/OrderVoter.php) extends Symfony's `Voter` and returns a bool as expected.
+3. **Voters.** [OrderVoter](../src/Security/Voter/OrderVoter.php) extends Symfony's `Voter` and returns a bool as expected.
    Symfony asks it the same question as all other voters.
 
 ### The "bad" version: an implementation that breaks the contract
@@ -260,13 +260,13 @@ before calling it, you have lost all the benefits of O and D.
 
 ### Where it is in PokéShop
 
-1. **Symfony's security interfaces**, implemented by [User](src/Entity/User.php):
+1. **Symfony's security interfaces**, implemented by [User](../src/Entity/User.php):
    - `UserInterface` = "can be logged in" (`getUserIdentifier()`, `getRoles()`)
    - `PasswordAuthenticatedUserInterface` = "logs in with a password" (`getPassword()`)
 
    Symfony split them on purpose: a user who logs in with Google or a magic link implements only the first one,
    and does not need a fake `getPassword()` that returns null.
-2. **Our own [PaymentGatewayInterface](src/Service/Payment/PaymentGatewayInterface.php)** has one method: `pay()`.
+2. **Our own [PaymentGatewayInterface](../src/Service/Payment/PaymentGatewayInterface.php)** has one method: `pay()`.
    The shop never refunds or subscribes, so the interface does not ask for `refund()` or `createSubscription()`.
 
 ### The "bad" version: a fat interface
@@ -305,7 +305,7 @@ If one day we need refunds, we will add a separate `RefundableGatewayInterface` 
 
 ### Where it is in PokéShop
 
-1. [CheckoutService](src/Service/CheckoutService.php) (high level: "how to buy") depends on
+1. [CheckoutService](../src/Service/CheckoutService.php) (high level: "how to buy") depends on
    `PaymentGatewayInterface` (abstraction), **not** on `FakePaymentGateway` (detail).
    The direction is "inverted": the detail (`FakePaymentGateway`) depends on the abstraction (it implements it), so the
    business rule depends on nothing concrete.
@@ -315,7 +315,7 @@ If one day we need refunds, we will add a separate `RefundableGatewayInterface` 
    ```
 2. **Constructor injection everywhere.** Look at any service or controller: dependencies arrive as constructor or action arguments
    (`CartService $cartService`, `ProductRepository $products`...). There is no `new CartService()` anywhere in `src/`.
-   Symfony's container builds and wires everything ([config/services.yaml](config/services.yaml): `autowire: true`).
+   Symfony's container builds and wires everything ([config/services.yaml](../config/services.yaml): `autowire: true`).
 3. We always type-hint Symfony's **interfaces**: `EntityManagerInterface`, `UserPasswordHasherInterface`,
    `AccessDecisionManagerInterface`.
 
@@ -336,7 +336,7 @@ final class CheckoutService
 ### What breaks without it
 
 - Tests would charge a **real card** every time they run. Look at how
-  [CheckoutServiceTest](tests/Service/CheckoutServiceTest.php) passes fake gateways in and never touches a bank or a database.
+  [CheckoutServiceTest](../tests/Service/CheckoutServiceTest.php) passes fake gateways in and never touches a bank or a database.
 - Switching providers means editing business code.
 
 ---
@@ -371,21 +371,21 @@ final class CheckoutService
 
 ### Walk-through 1: "Add to cart" (POST /cart/add/3)
 
-1. [CartController::add](src/Controller/CartController.php): Symfony converts `{id}` into a `Product` (404 if missing),
+1. [CartController::add](../src/Controller/CartController.php): Symfony converts `{id}` into a `Product` (404 if missing),
    checks `#[IsGranted('ROLE_USER')]`, validates the quantity form, then calls
    `$this->cartService->addProduct($user, $product, $quantity)`.
-2. [CartService::addProduct](src/Service/CartService.php): asks the repository for the current cart
+2. [CartService::addProduct](../src/Service/CartService.php): asks the repository for the current cart
    (`findCurrentCartFor`), merges with an existing line or creates a `CartItem`, refuses if over stock
    (`throw new ShopException('cart.error.not_enough_stock')`), then saves.
 3. Back in the controller: success means a green flash; a `ShopException` means a red flash. Then redirect to the product page.
 
 ### Walk-through 2: "Buy" (POST /cart/checkout)
 
-1. [CartController::checkout](src/Controller/CartController.php) checks the CSRF token, gets the cart, calls `CheckoutService::checkout`.
-2. [CheckoutService::checkout](src/Service/CheckoutService.php), **in one database transaction**: locks and re-reads each
+1. [CartController::checkout](../src/Controller/CartController.php) checks the CSRF token, gets the cart, calls `CheckoutService::checkout`.
+2. [CheckoutService::checkout](../src/Service/CheckoutService.php), **in one database transaction**: locks and re-reads each
    product's stock, decreases it, calls the payment gateway **last**, marks the cart paid with the current date.
    Any exception = everything rolled back (no stock lost on a declined payment).
-3. Controller: redirect to the order page. Access to that page is decided by [OrderVoter](src/Security/Voter/OrderVoter.php).
+3. Controller: redirect to the order page. Access to that page is decided by [OrderVoter](../src/Security/Voter/OrderVoter.php).
 
 ### "Where does this code go?" (cheat sheet)
 
@@ -405,13 +405,13 @@ final class CheckoutService
 
 - **Read a controller, understand the feature** in 10 seconds: each action is a few lines.
 - **Reuse:** `CartService` could serve a JSON API tomorrow without changes.
-- **Testing:** services are tested without HTTP ([tests/Service](tests/Service)); the whole flow is tested through HTTP
-  ([tests/Controller/ShopFlowTest.php](tests/Controller/ShopFlowTest.php)).
+- **Testing:** services are tested without HTTP ([tests/Service](../tests/Service)); the whole flow is tested through HTTP
+  ([tests/Controller/ShopFlowTest.php](../tests/Controller/ShopFlowTest.php)).
 - **Teamwork:** one person changes a query, another a template, another a rule, in different files.
 
 ### Note: a controller may call a repository directly
 
-[SuperAdminController](src/Controller/SuperAdminController.php) and `ProductController::index` read data straight from
+[SuperAdminController](../src/Controller/SuperAdminController.php) and `ProductController::index` read data straight from
 repositories. That is fine: there is **no rule** to apply, only data to show. A `SuperAdminService` that just forwards
 `findUnpaidCarts()` would be a useless extra layer. Use a service as soon as there is a **decision** or a **change** (write).
 
@@ -427,7 +427,7 @@ Being SOLID also means knowing when to stop:
 | One exception class per error | a single `ShopException` carrying a translation key covers every business error |
 | A service for the super admin page | read-only, no rules |
 | A separate `RegistrationController` | sign-up is 15 lines; it sits next to login in `SecurityController` |
-| Price snapshot on order lines | not required by the spec; marked with a `shortcut:` comment in [CartItem.php](src/Entity/CartItem.php) |
+| Price snapshot on order lines | not required by the spec; marked with a `shortcut:` comment in [CartItem.php](../src/Entity/CartItem.php) |
 
 ---
 
